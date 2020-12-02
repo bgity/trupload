@@ -3,42 +3,39 @@ import { Storage } from 'aws-amplify';
 import { Button, Col, Form } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { withRouter, Link } from 'react-router-dom';
+import moment from 'moment';
+import { Auth } from 'aws-amplify';
 
-class VodUpload extends Component {
-  //fileObj = [];
-  //fileArray = [];
+class DataForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       videoName: '',
       videoFile: '',
       videoType: '',
+      response: '',
       isLoading: false,
       shortDescription: '',
       longDescription: '',
       category: '',
       subCategory: '',
+      videoNameVal: '',
       uploadProgress: 0,
       uploading: false,
       validated: false,
       toster: false,
-      //error
+      //errors Var
       shortDescriptionError: false,
       longDescriptionError: false,
       categoryError: false,
       subCategoryError: false,
       videoNameError: false,
       imageUploadError: false,
-      /* files: [],*/
       imageFiles: '',
+      username1: '',
     };
   }
-
-  /* fileSelectedHandler = (e) => {
-    this.setState({ imageFiles: [...this.state.files, ...e.target.files] });
-  }; */
-
+  //Handle onchange event
   handleChangeValue = (event) => {
     if (event.target.name === 'shortDescription') {
       if (event.target.value === '' || event.target.value === null) {
@@ -101,9 +98,7 @@ class VodUpload extends Component {
       }
     }
   };
-  backToDashboard = () => {
-    this.props.history.push('/');
-  };
+  //Handle Video Uplod File
   handleVideoChangeValue = (event) => {
     const fileValue = event.target.files[0];
     if (fileValue === '' || fileValue === null) {
@@ -119,16 +114,23 @@ class VodUpload extends Component {
       });
     }
   };
-  /* async pushImgToS3(uri, filename) {
-    if (uri === null) return;
-    await Storage.put(filename, uri, {
-      contentType: 'image/*',
-    })
-      .then((result) => console.log(result.key))
-      .catch((err) => console.log(err));
-  } */
-
+  backToDashboard = () => {
+    this.props.history.push('/');
+  };
+  //Submit Form
   uploadAssetData = (e) => {
+    var data1 = localStorage.getItem(
+      'CognitoIdentityServiceProvider.1gqmvf15e1ljdu60go2udsu492.bhagwan.userData'
+    );
+    console.log(data1);
+    /*   Auth.currentUserInfo()
+      .then((data) => {
+        localStorage.setItem('myData', data.username);
+        this.setState({ username1: data.username });
+        console.log('result: ', data.username);
+      })
+      .catch((err) => console.log(err));
+    console.log(this.state.username1); */
     const {
       shortDescription,
       longDescription,
@@ -140,21 +142,6 @@ class VodUpload extends Component {
       imageFiles,
     } = this.state;
 
-    //const filesLength = imageFiles.length;
-    //console.log(filesLength);
-    // Loop through all selected files
-    //for (let i = 0; i < filesLength; i++) {
-    // const file = imageFiles[i];
-    // const filename = file.name;
-    /* .toLowerCase()
-        .replace(/ /g, '-')
-        .replace(/[^\w-]+/g, '');
-      const fileExtension = file.name.split('.').pop(); */
-    // Define the image name
-    //let mainImgName = filename . fileExtension;
-    // Push the image to S3
-    //await this.pushImgToS3(file, filename);
-    // }
     if (shortDescription === '') {
       this.setState({ shortDescriptionError: true });
     }
@@ -186,10 +173,25 @@ class VodUpload extends Component {
       videoName !== '' &&
       imageFiles !== ''
     ) {
-      let videoNameStr = videoName.split('.')[0];
-      let createJsonFile = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
+      //Create Json File
       let imageType = imageFiles.type;
       let imageName = imageFiles.name;
+      let imageNameStr = imageName.split('.')[0];
+      let imageNameType = imageName.split('.')[1];
+      let videoNameStr = videoName.split('.')[0];
+      let videoNameType = videoName.split('.')[1];
+      //Update fileName with current DateTime
+      const currentDatetime = moment().format('YYYY-MM-DDTHH:mm:ss');
+      //updated Image name
+      let imageCurrentDateTime =
+        imageNameStr + currentDatetime + '.' + imageNameType;
+      console.log(imageCurrentDateTime);
+      //updated Video name
+      let videoCurrentDateTime =
+        videoNameStr + currentDatetime + '.' + videoNameType;
+      //Creating JSON file name
+      var createFileName = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
+      //Creating JSON object
       let jsonData = JSON.stringify({
         shortDescription: shortDescription,
         longDescription: longDescription,
@@ -197,17 +199,18 @@ class VodUpload extends Component {
         subCategory: subCategory,
         videoName: videoName,
         imageName: imageName,
+        updatedVideoName: videoCurrentDateTime,
+        updatedImageName: imageCurrentDateTime,
       });
 
       //Json upload
-      Storage.put(`${createJsonFile}`, `${jsonData}`, {
+      Storage.put(`${createFileName}`, `${jsonData}`, {
         customPrefix: {
           public: '',
         },
-        //bucket: 'asset-uploader-dev',
       })
         .then((result) => {
-          console.log('result: ', result);
+          //console.log('result: ', result);
         })
         .catch((err) => {
           this.setState({
@@ -223,8 +226,7 @@ class VodUpload extends Component {
         });
 
       //Image Upload
-      const foo = this;
-      Storage.put(`${'videoImages/' + imageName}`, imageFiles, {
+      Storage.put(`${'videoImages/' + imageCurrentDateTime}`, imageFiles, {
         customPrefix: {
           public: '',
         },
@@ -245,20 +247,22 @@ class VodUpload extends Component {
             window.location.reload();
           }, 3000);
         });
+
       //Video Upload
+      const videoVal = this;
       this.setState({ uploading: true });
-      Storage.put(`${videoName}`, videoFile, {
+      Storage.put(`${videoCurrentDateTime}`, videoFile, {
         customPrefix: {
           public: '',
         },
         progressCallback(progress) {
           let prog = parseInt((progress.loaded / progress.total) * 100);
           //console.log(prog + '%');
-          foo.setState({ uploadProgress: prog + '%' });
+          videoVal.setState({ uploadProgress: prog + '%' });
         },
         contentType: videoType,
       })
-        .then(() => {
+        .then((result) => {
           this.setState({ uploading: false });
           this.setState({
             toster: true,
@@ -267,6 +271,7 @@ class VodUpload extends Component {
             position: 'top-right',
             autoClose: 3000,
           });
+          //document.getElementById('dataForm').reset();
           setTimeout(() => {
             window.location.reload();
           }, 3000);
@@ -285,6 +290,7 @@ class VodUpload extends Component {
         });
     }
   };
+
   render() {
     return (
       <div className='container'>
@@ -357,7 +363,7 @@ class VodUpload extends Component {
                     ''
                   )}
                 </Form.Group>
-                <Form.Group as={Col}>
+                <Form.Group as={Col} controlId='formGridPassword'>
                   <Form.Label>Sub Category</Form.Label>
                   <Form.Control
                     as='select'
@@ -414,7 +420,7 @@ class VodUpload extends Component {
                     </div>
                   )}
                   <Form.File
-                    name='assetVideoUpload'
+                    name='assetUpload'
                     type='file'
                     accept='video/*'
                     onChange={this.handleVideoChangeValue}
@@ -429,16 +435,6 @@ class VodUpload extends Component {
                   )}
                 </Form.Group>
               </Form.Row>
-              {/* <Form.Group>
-                <Form.Label>Image</Form.Label>
-                <Form.File
-                  name='assetImgUpload'
-                  type='file'
-                  accept='image/*'
-                  multiple={true}
-                  onChange={this.fileSelectedHandler}
-                />
-              </Form.Group>*/}
               {this.state.toster && (
                 <ToastContainer
                   position='top-right'
@@ -452,6 +448,7 @@ class VodUpload extends Component {
                   pauseOnHover
                 />
               )}
+              {/*  {this.state.toster && <Toster />} */}
               <Button variant='primary' onClick={this.uploadAssetData}>
                 Submit
               </Button>
@@ -462,4 +459,4 @@ class VodUpload extends Component {
     );
   }
 }
-export default withRouter(VodUpload);
+export default DataForm;
