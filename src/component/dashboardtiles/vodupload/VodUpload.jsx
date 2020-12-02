@@ -3,39 +3,42 @@ import { Storage } from 'aws-amplify';
 import { Button, Col, Form } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import moment from 'moment';
-import { Auth } from 'aws-amplify';
+import { withRouter, Link } from 'react-router-dom';
 
-class DataForm extends Component {
+class VodUpload extends Component {
+  //fileObj = [];
+  //fileArray = [];
   constructor(props) {
     super(props);
     this.state = {
       videoName: '',
       videoFile: '',
       videoType: '',
-      response: '',
       isLoading: false,
       shortDescription: '',
       longDescription: '',
       category: '',
       subCategory: '',
-      videoNameVal: '',
       uploadProgress: 0,
       uploading: false,
       validated: false,
       toster: false,
-      //errors Var
+      //error
       shortDescriptionError: false,
       longDescriptionError: false,
       categoryError: false,
       subCategoryError: false,
       videoNameError: false,
       imageUploadError: false,
+      /* files: [],*/
       imageFiles: '',
-      username1: '',
     };
   }
-  //Handle onchange event
+
+  /* fileSelectedHandler = (e) => {
+    this.setState({ imageFiles: [...this.state.files, ...e.target.files] });
+  }; */
+
   handleChangeValue = (event) => {
     if (event.target.name === 'shortDescription') {
       if (event.target.value === '' || event.target.value === null) {
@@ -98,7 +101,9 @@ class DataForm extends Component {
       }
     }
   };
-  //Handle Video Uplod File
+  backToDashboard = () => {
+    this.props.history.push('/');
+  };
   handleVideoChangeValue = (event) => {
     const fileValue = event.target.files[0];
     if (fileValue === '' || fileValue === null) {
@@ -114,20 +119,16 @@ class DataForm extends Component {
       });
     }
   };
-  //Submit Form
-  uploadAssetData = (e) => {
-    var data1 = localStorage.getItem(
-      'CognitoIdentityServiceProvider.1gqmvf15e1ljdu60go2udsu492.bhagwan.userData'
-    );
-    console.log(data1);
-    /*   Auth.currentUserInfo()
-      .then((data) => {
-        localStorage.setItem('myData', data.username);
-        this.setState({ username1: data.username });
-        console.log('result: ', data.username);
-      })
+  /* async pushImgToS3(uri, filename) {
+    if (uri === null) return;
+    await Storage.put(filename, uri, {
+      contentType: 'image/*',
+    })
+      .then((result) => console.log(result.key))
       .catch((err) => console.log(err));
-    console.log(this.state.username1); */
+  } */
+
+  uploadAssetData = (e) => {
     const {
       shortDescription,
       longDescription,
@@ -139,6 +140,21 @@ class DataForm extends Component {
       imageFiles,
     } = this.state;
 
+    //const filesLength = imageFiles.length;
+    //console.log(filesLength);
+    // Loop through all selected files
+    //for (let i = 0; i < filesLength; i++) {
+    // const file = imageFiles[i];
+    // const filename = file.name;
+    /* .toLowerCase()
+        .replace(/ /g, '-')
+        .replace(/[^\w-]+/g, '');
+      const fileExtension = file.name.split('.').pop(); */
+    // Define the image name
+    //let mainImgName = filename . fileExtension;
+    // Push the image to S3
+    //await this.pushImgToS3(file, filename);
+    // }
     if (shortDescription === '') {
       this.setState({ shortDescriptionError: true });
     }
@@ -170,25 +186,10 @@ class DataForm extends Component {
       videoName !== '' &&
       imageFiles !== ''
     ) {
-      //Create Json File
+      let videoNameStr = videoName.split('.')[0];
+      let createJsonFile = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
       let imageType = imageFiles.type;
       let imageName = imageFiles.name;
-      let imageNameStr = imageName.split('.')[0];
-      let imageNameType = imageName.split('.')[1];
-      let videoNameStr = videoName.split('.')[0];
-      let videoNameType = videoName.split('.')[1];
-      //Update fileName with current DateTime
-      const currentDatetime = moment().format('YYYY-MM-DDTHH:mm:ss');
-      //updated Image name
-      let imageCurrentDateTime =
-        imageNameStr + currentDatetime + '.' + imageNameType;
-      console.log(imageCurrentDateTime);
-      //updated Video name
-      let videoCurrentDateTime =
-        videoNameStr + currentDatetime + '.' + videoNameType;
-      //Creating JSON file name
-      var createFileName = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
-      //Creating JSON object
       let jsonData = JSON.stringify({
         shortDescription: shortDescription,
         longDescription: longDescription,
@@ -196,18 +197,17 @@ class DataForm extends Component {
         subCategory: subCategory,
         videoName: videoName,
         imageName: imageName,
-        updatedVideoName: videoCurrentDateTime,
-        updatedImageName: imageCurrentDateTime,
       });
 
       //Json upload
-      Storage.put(`${createFileName}`, `${jsonData}`, {
+      Storage.put(`${createJsonFile}`, `${jsonData}`, {
         customPrefix: {
           public: '',
         },
+        //bucket: 'asset-uploader-dev',
       })
         .then((result) => {
-          //console.log('result: ', result);
+          console.log('result: ', result);
         })
         .catch((err) => {
           this.setState({
@@ -223,7 +223,8 @@ class DataForm extends Component {
         });
 
       //Image Upload
-      Storage.put(`${'videoImages/' + imageCurrentDateTime}`, imageFiles, {
+      const foo = this;
+      Storage.put(`${'videoImages/' + imageName}`, imageFiles, {
         customPrefix: {
           public: '',
         },
@@ -244,22 +245,20 @@ class DataForm extends Component {
             window.location.reload();
           }, 3000);
         });
-
       //Video Upload
-      const videoVal = this;
       this.setState({ uploading: true });
-      Storage.put(`${videoCurrentDateTime}`, videoFile, {
+      Storage.put(`${videoName}`, videoFile, {
         customPrefix: {
           public: '',
         },
         progressCallback(progress) {
           let prog = parseInt((progress.loaded / progress.total) * 100);
           //console.log(prog + '%');
-          videoVal.setState({ uploadProgress: prog + '%' });
+          foo.setState({ uploadProgress: prog + '%' });
         },
         contentType: videoType,
       })
-        .then((result) => {
+        .then(() => {
           this.setState({ uploading: false });
           this.setState({
             toster: true,
@@ -268,7 +267,6 @@ class DataForm extends Component {
             position: 'top-right',
             autoClose: 3000,
           });
-          //document.getElementById('dataForm').reset();
           setTimeout(() => {
             window.location.reload();
           }, 3000);
@@ -287,13 +285,15 @@ class DataForm extends Component {
         });
     }
   };
-
   render() {
     return (
       <div className='container'>
         <div className='outer'>
           <div className='inner'>
-            <h3>TCS VIDEO CHANNEL</h3>
+            <Button variant='primary' onClick={this.backToDashboard}>
+              Back
+            </Button>
+            <h3>VOD UPLOAD</h3>
             <Form
               validated={this.state.validated}
               onSubmit={this.uploadAssetData}
@@ -357,7 +357,7 @@ class DataForm extends Component {
                     ''
                   )}
                 </Form.Group>
-                <Form.Group as={Col} controlId='formGridPassword'>
+                <Form.Group as={Col}>
                   <Form.Label>Sub Category</Form.Label>
                   <Form.Control
                     as='select'
@@ -414,7 +414,7 @@ class DataForm extends Component {
                     </div>
                   )}
                   <Form.File
-                    name='assetUpload'
+                    name='assetVideoUpload'
                     type='file'
                     accept='video/*'
                     onChange={this.handleVideoChangeValue}
@@ -429,6 +429,16 @@ class DataForm extends Component {
                   )}
                 </Form.Group>
               </Form.Row>
+              {/* <Form.Group>
+                <Form.Label>Image</Form.Label>
+                <Form.File
+                  name='assetImgUpload'
+                  type='file'
+                  accept='image/*'
+                  multiple={true}
+                  onChange={this.fileSelectedHandler}
+                />
+              </Form.Group>*/}
               {this.state.toster && (
                 <ToastContainer
                   position='top-right'
@@ -442,7 +452,6 @@ class DataForm extends Component {
                   pauseOnHover
                 />
               )}
-              {/*  {this.state.toster && <Toster />} */}
               <Button variant='primary' onClick={this.uploadAssetData}>
                 Submit
               </Button>
@@ -453,4 +462,4 @@ class DataForm extends Component {
     );
   }
 }
-export default DataForm;
+export default withRouter(VodUpload);
