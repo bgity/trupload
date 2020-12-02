@@ -4,9 +4,9 @@ import { Button, Col, Form } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
-import { Auth } from 'aws-amplify';
+import { withRouter } from 'react-router-dom';
 
-class DataForm extends Component {
+class VodUpload extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -459,4 +459,4 @@ class DataForm extends Component {
     );
   }
 }
-export default DataForm;
+export default withRouter(VodUpload);
