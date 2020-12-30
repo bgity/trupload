@@ -1,0 +1,32 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-awstrivusupload-dev-192918-authRole",
+      "UnauthRoleArn": "arn:aws:iam::261507160487:role/amplify-awstrivusupload-dev-192918-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::261507160487:role/amplify-awstrivusupload-dev-192918-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-awstrivusupload-dev-192918-deployment",
+      "UnauthRoleName": "amplify-awstrivusupload-dev-192918-unauthRole",
+      "StackName": "amplify-awstrivusupload-dev-192918",
+      "StackId": "arn:aws:cloudformation:us-east-1:261507160487:stack/amplify-awstrivusupload-dev-192918/1a10e390-28dd-11eb-aa4d-12da3ecd6186",
+      "AmplifyAppId": "d2lv2dioo24fq"
+    },
+    "categories": {
+      "auth": {
+        "awstrivusupload349988a6": {
+          "userPoolId": "us-east-1_xURGaUxkx",
+          "userPoolName": "awsuploadpool",
+          "webClientId": "1gqmvf15e1ljdu60go2udsu492",
+          "nativeClientId": "1lh9g69tan2uifnq9hsqssqere",
+          "identityPoolId": "us-east-1:979574ee-3738-486d-8364-efaa2a5067fa",
+          "identityPoolName": "awsidentity",
+          "allowUnauthenticatedIdentities": false,
+          "authRoleArn": "arn:aws:iam::261507160487:role/Cognito_awsidentityAuth_Role",
+          "authRoleName": "Cognito_awsidentityAuth_Role",
+          "unauthRoleArn": "arn:aws:iam::261507160487:role/Cognito_awsidentityUnauth_Role",
+          "unauthRoleName": "Cognito_awsidentityUnauth_Role"
+        }
+      }
+    }
+  }
+}

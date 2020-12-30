@@ -31,15 +31,12 @@ class VodUpload extends Component {
       //errors Var
       shortDescriptionError: false,
       longDescriptionError: false,
-      titleError: false,
       categoryError: false,
       subCategoryError: false,
       videoNameError: false,
       imageUploadError: false,
-      contentTypeValError: false,
       imageFiles: '',
       username1: '',
-      contentTypeVal: '',
     };
   }
   //Handle onchange event
@@ -64,7 +61,7 @@ class VodUpload extends Component {
         });
       }
     }
-    /*     if (event.target.name === 'shortDescription') {
+    if (event.target.name === 'shortDescription') {
       if (event.target.value === '' || event.target.value === null) {
         this.setState({
           shortDescriptionError: true,
@@ -75,7 +72,7 @@ class VodUpload extends Component {
           shortDescription: event.target.value,
         });
       }
-    } */
+    }
     if (event.target.name === 'longDescription') {
       if (event.target.value === '' || event.target.value === null) {
         this.setState({
@@ -97,18 +94,6 @@ class VodUpload extends Component {
         this.setState({
           categoryError: false,
           category: event.target.value,
-        });
-      }
-    }
-    if (event.target.name === 'contentTypeVal') {
-      if (event.target.value === '' || event.target.value === null) {
-        this.setState({
-          contentTypeValError: true,
-        });
-      } else {
-        this.setState({
-          contentTypeValError: false,
-          contentTypeVal: event.target.value,
         });
       }
     }
@@ -173,7 +158,7 @@ class VodUpload extends Component {
     const {
       title,
       publishAsset,
-      //shortDescription,
+      shortDescription,
       longDescription,
       category,
       subCategory,
@@ -181,18 +166,14 @@ class VodUpload extends Component {
       videoFile,
       videoType,
       imageFiles,
-      contentTypeVal,
     } = this.state;
 
     if (title === '') {
       this.setState({ titleError: true });
     }
-    if (contentTypeVal === '') {
-      this.setState({ contentTypeValError: true });
-    }
-    /*  if (shortDescription === '') {
+    if (shortDescription === '') {
       this.setState({ shortDescriptionError: true });
-    } */
+    }
     if (longDescription === '') {
       this.setState({ longDescriptionError: true });
     }
@@ -215,8 +196,7 @@ class VodUpload extends Component {
     }
     if (
       title !== '' &&
-      // shortDescription !== '' &&
-      contentTypeVal !== '' &&
+      shortDescription !== '' &&
       longDescription !== '' &&
       category !== '' &&
       subCategory !== '' &&
@@ -244,8 +224,8 @@ class VodUpload extends Component {
       //Creating JSON object
       let jsonData = JSON.stringify({
         title: title,
-        //shortDescription: shortDescription,
-        description: longDescription,
+        shortDescription: shortDescription,
+        longDescription: longDescription,
         category: category,
         subCategory: subCategory,
         videoName: videoName,
@@ -254,18 +234,18 @@ class VodUpload extends Component {
         updatedImageName: imageCurrentDateTime,
         loginUserName: getUserInformation,
         publishAsset: publishAsset,
-        contentType: contentTypeVal,
+        videoType: 'VOD',
         currentDateTime: currentDatetime,
       });
 
       //Json upload
-      /*  Storage.put(`${createFileName}`, `${jsonData}`, {
+      Storage.put(`${createFileName}`, `${jsonData}`, {
         customPrefix: {
           public: '',
         },
       })
         .then((result) => {
-          console.log('result: ', result);
+          //console.log('result: ', result);
         })
         .catch((err) => {
           this.setState({
@@ -278,7 +258,7 @@ class VodUpload extends Component {
           setTimeout(() => {
             window.location.reload();
           }, 3000);
-        }); */
+        });
 
       //Image Upload
       Storage.put(`${'videoImages/' + imageCurrentDateTime}`, imageFiles, {
@@ -326,27 +306,6 @@ class VodUpload extends Component {
             position: 'top-right',
             autoClose: 3000,
           });
-
-          Storage.put(`${createFileName}`, `${jsonData}`, {
-            customPrefix: {
-              public: '',
-            },
-          })
-            .then((result) => {
-              console.log('json result: ', result);
-            })
-            .catch((err) => {
-              this.setState({
-                toster: true,
-              });
-              toast.error(`Cannot uploading file: ${err}`, {
-                position: 'top-right',
-                autoClose: 4000,
-              });
-              /* setTimeout(() => {
-                window.location.reload();
-              }, 3000); */
-            });
           //document.getElementById('dataForm').reset();
           setTimeout(() => {
             window.location.reload();
@@ -391,34 +350,36 @@ class VodUpload extends Component {
               >
                 <Form.Row>
                   <Form.Group as={Col}>
-                    <Form.Label>Title</Form.Label>
+                    <Form.Label>short Description</Form.Label>
                     <Form.Control
                       type='text'
-                      name='title'
-                      placeholder='Title'
+                      name='shortDescription'
+                      placeholder='Short Description'
                       onChange={this.handleChangeValue}
                       autoComplete='off'
                       required
                     />
-                    {this.state.titleError ? (
-                      <span className='form-error'>Please Enter Title</span>
+                    {this.state.shortDescriptionError ? (
+                      <span style={{ color: 'red' }}>
+                        Please Enter short Description
+                      </span>
                     ) : (
                       ''
                     )}
                   </Form.Group>
                   <Form.Group as={Col} className='form-marigin-left'>
-                    <Form.Label>Description</Form.Label>
+                    <Form.Label>Long Description</Form.Label>
                     <Form.Control
                       type='text'
                       name='longDescription'
-                      placeholder='Description'
+                      placeholder='Long Description'
                       onChange={this.handleChangeValue}
                       autoComplete='off'
                       required
                     />
                     {this.state.longDescriptionError ? (
-                      <span className='form-error'>
-                        Please Enter Description
+                      <span style={{ color: 'red' }}>
+                        Please Enter Long Description
                       </span>
                     ) : (
                       ''
@@ -440,7 +401,9 @@ class VodUpload extends Component {
                       <option value='Learning Video'>Learning Video</option>
                     </Form.Control>
                     {this.state.categoryError ? (
-                      <span className='form-error'>Please Select Category</span>
+                      <span style={{ color: 'red' }}>
+                        Please Select Category
+                      </span>
                     ) : (
                       ''
                     )}
@@ -459,7 +422,7 @@ class VodUpload extends Component {
                       <option value='LDP Video'>LDP Video</option>
                     </Form.Control>
                     {this.state.subCategoryError ? (
-                      <span className='form-error'>
+                      <span style={{ color: 'red' }}>
                         Please Select SubCategory
                       </span>
                     ) : (
@@ -478,27 +441,6 @@ class VodUpload extends Component {
                     />
                   </Form.Group>
                   <Form.Group as={Col} className='form-marigin-left'>
-                    <Form.Label>Content Type</Form.Label>
-                    <Form.Control
-                      as='select'
-                      name='contentTypeVal'
-                      onChange={this.handleChangeValue}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='show'>TV Shows</option>
-                      <option value='movie'>Movies</option>
-                      <option value='episode'>Episodes</option>
-                    </Form.Control>
-                    {this.state.subCategoryError ? (
-                      <span className='form-error'>
-                        Please Select Content Type
-                      </span>
-                    ) : (
-                      ''
-                    )}
-                  </Form.Group>
-                  {/* <Form.Group as={Col} className='form-marigin-left'>
                     <Form.Label>Ttile</Form.Label>
                     <Form.Control
                       type='text'
@@ -513,7 +455,7 @@ class VodUpload extends Component {
                     ) : (
                       ''
                     )}
-                  </Form.Group> */}
+                  </Form.Group>
                 </Form.Row>
                 <Form.Row>
                   <Form.Group as={Col}>
@@ -526,7 +468,7 @@ class VodUpload extends Component {
                       required
                     />
                     {this.state.imageUploadError ? (
-                      <span className='form-error'>
+                      <span style={{ color: 'red' }}>
                         Please Choose Image File For Upload
                       </span>
                     ) : (
@@ -560,7 +502,7 @@ class VodUpload extends Component {
                       required
                     />
                     {this.state.videoNameError ? (
-                      <span className='form-error'>
+                      <span style={{ color: 'red' }}>
                         Please Choose Video File For Upload
                       </span>
                     ) : (

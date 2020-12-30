@@ -140,14 +140,3 @@
 .button-aline {
   margin-left: 59rem;
 }
-label {
-  font-size: 13px;
-}
-.form-control,
-.form-control-file {
-  font-size: 13px;
-}
-.form-error {
-  color: red;
-  font-size: 13px;
-}
