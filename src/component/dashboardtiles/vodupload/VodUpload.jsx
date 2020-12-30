@@ -64,7 +64,7 @@ class VodUpload extends Component {
         });
       }
     }
-    /*     if (event.target.name === 'shortDescription') {
+    /* if (event.target.name === 'shortDescription') {
       if (event.target.value === '' || event.target.value === null) {
         this.setState({
           shortDescriptionError: true,
@@ -234,11 +234,11 @@ class VodUpload extends Component {
       const currentDatetime = moment().format('YYYY-MM-DDTHH:mm:ss');
       //updated Image name
       let imageCurrentDateTime =
-        imageNameStr + currentDatetime + '.' + imageNameType;
+        imageNameStr + '_' + currentDatetime + '.' + imageNameType;
       console.log(imageCurrentDateTime);
       //updated Video name
       let videoCurrentDateTime =
-        videoNameStr + currentDatetime + '.' + videoNameType;
+        videoNameStr + '_' + currentDatetime + '.' + videoNameType;
       //Creating JSON file name
       var createFileName = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
       //Creating JSON object
@@ -257,7 +257,6 @@ class VodUpload extends Component {
         contentType: contentTypeVal,
         currentDateTime: currentDatetime,
       });
-
       //Json upload
       /*  Storage.put(`${createFileName}`, `${jsonData}`, {
         customPrefix: {
@@ -326,7 +325,7 @@ class VodUpload extends Component {
             position: 'top-right',
             autoClose: 3000,
           });
-
+          //upload json
           Storage.put(`${createFileName}`, `${jsonData}`, {
             customPrefix: {
               public: '',
@@ -498,22 +497,6 @@ class VodUpload extends Component {
                       ''
                     )}
                   </Form.Group>
-                  {/* <Form.Group as={Col} className='form-marigin-left'>
-                    <Form.Label>Ttile</Form.Label>
-                    <Form.Control
-                      type='text'
-                      name='title'
-                      placeholder='Title'
-                      onChange={this.handleChangeValue}
-                      autoComplete='off'
-                      required
-                    />
-                    {this.state.titleError ? (
-                      <span style={{ color: 'red' }}>Please Enter Title</span>
-                    ) : (
-                      ''
-                    )}
-                  </Form.Group> */}
                 </Form.Row>
                 <Form.Row>
                   <Form.Group as={Col}>
