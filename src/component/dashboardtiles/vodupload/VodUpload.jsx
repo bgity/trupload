@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import Footer from '../../../component/common/footer/Footer';
-import Logo from '../../common/logo/Logo';
 
 class VodUpload extends Component {
   constructor(props) {
@@ -40,7 +39,11 @@ class VodUpload extends Component {
       imageFiles: '',
       username1: '',
       contentTypeVal: '',
+      genre_map: [],
+      states: [],
+      selectedCategory: '--Choose category--',
     };
+    this.changeCategory = this.changeCategory.bind(this);
   }
   //Handle onchange event
   handleChangeValue = (event) => {
@@ -64,18 +67,6 @@ class VodUpload extends Component {
         });
       }
     }
-    /* if (event.target.name === 'shortDescription') {
-      if (event.target.value === '' || event.target.value === null) {
-        this.setState({
-          shortDescriptionError: true,
-        });
-      } else {
-        this.setState({
-          shortDescriptionError: false,
-          shortDescription: event.target.value,
-        });
-      }
-    } */
     if (event.target.name === 'longDescription') {
       if (event.target.value === '' || event.target.value === null) {
         this.setState({
@@ -85,18 +76,6 @@ class VodUpload extends Component {
         this.setState({
           longDescriptionError: false,
           longDescription: event.target.value,
-        });
-      }
-    }
-    if (event.target.name === 'category') {
-      if (event.target.value === '' || event.target.value === null) {
-        this.setState({
-          categoryError: true,
-        });
-      } else {
-        this.setState({
-          categoryError: false,
-          category: event.target.value,
         });
       }
     }
@@ -113,16 +92,9 @@ class VodUpload extends Component {
       }
     }
     if (event.target.name === 'subCategory') {
-      if (event.target.value === '' || event.target.value === null) {
-        this.setState({
-          subCategoryError: true,
-        });
-      } else {
-        this.setState({
-          subCategoryError: false,
-          subCategory: event.target.value,
-        });
-      }
+      this.setState({
+        subCategory: event.target.value,
+      });
     }
     if (event.target.name === 'assetImgUpload') {
       if (event.target.files[0] === '' || event.target.files[0] === null) {
@@ -153,6 +125,26 @@ class VodUpload extends Component {
       });
     }
   };
+
+  changeCategory(event) {
+    if (event.target.value === '' || event.target.value === null) {
+      this.setState({
+        categoryError: true,
+        states: [],
+      });
+    } else {
+      this.setState({
+        categoryError: false,
+        category: event.target.value,
+      });
+      this.setState({
+        states: this.state.genre_map.find(
+          (cntry) => cntry.primary_genre_id === event.target.value
+        ).associated_secondary_genre,
+      });
+    }
+  }
+
   backToDashboard = () => {
     this.props.history.push('/');
   };
@@ -161,19 +153,9 @@ class VodUpload extends Component {
     var getUserInformation = localStorage.getItem(
       'CognitoIdentityServiceProvider.1gqmvf15e1ljdu60go2udsu492.LastAuthUser'
     );
-    console.log(getUserInformation);
-    /*   Auth.currentUserInfo()
-      .then((data) => {
-        localStorage.setItem('myData', data.username);
-        this.setState({ username1: data.username });
-        console.log('result: ', data.username);
-      })
-      .catch((err) => console.log(err));
-    console.log(this.state.username1); */
     const {
       title,
       publishAsset,
-      //shortDescription,
       longDescription,
       category,
       subCategory,
@@ -199,9 +181,9 @@ class VodUpload extends Component {
     if (category === '') {
       this.setState({ categoryError: true });
     }
-    if (subCategory === '') {
+    /*  if (subCategory === '') {
       this.setState({ subCategoryError: true });
-    }
+    } */
     if (imageFiles === '') {
       this.setState({ imageUploadError: true });
     }
@@ -215,11 +197,9 @@ class VodUpload extends Component {
     }
     if (
       title !== '' &&
-      // shortDescription !== '' &&
       contentTypeVal !== '' &&
       longDescription !== '' &&
       category !== '' &&
-      subCategory !== '' &&
       videoName !== '' &&
       imageFiles !== ''
     ) {
@@ -244,7 +224,6 @@ class VodUpload extends Component {
       //Creating JSON object
       let jsonData = JSON.stringify({
         title: title,
-        //shortDescription: shortDescription,
         description: longDescription,
         primaryGenre: category,
         secondaryGenre: subCategory,
@@ -252,33 +231,12 @@ class VodUpload extends Component {
         imageName: imageName,
         updatedVideoName: videoCurrentDateTime,
         updatedImageName: imageCurrentDateTime,
-        loginUserName: getUserInformation,
+        userName: getUserInformation,
         publishAsset: publishAsset,
         contentType: contentTypeVal,
         currentDateTime: currentDatetime,
       });
-      //Json upload
-      /*  Storage.put(`${createFileName}`, `${jsonData}`, {
-        customPrefix: {
-          public: '',
-        },
-      })
-        .then((result) => {
-          console.log('result: ', result);
-        })
-        .catch((err) => {
-          this.setState({
-            toster: true,
-          });
-          toast.error(`Cannot uploading file: ${err}`, {
-            position: 'top-right',
-            autoClose: 4000,
-          });
-          setTimeout(() => {
-            window.location.reload();
-          }, 3000);
-        }); */
-
+      console.log(jsonData);
       //Image Upload
       Storage.put(`${'videoImages/' + imageCurrentDateTime}`, imageFiles, {
         customPrefix: {
@@ -342,9 +300,6 @@ class VodUpload extends Component {
                 position: 'top-right',
                 autoClose: 4000,
               });
-              /* setTimeout(() => {
-                window.location.reload();
-              }, 3000); */
             });
           //document.getElementById('dataForm').reset();
           setTimeout(() => {
@@ -365,13 +320,47 @@ class VodUpload extends Component {
         });
     }
   };
+  componentDidMount() {
+    this.setState({
+      genre_map: [
+        {
+          primary_genre_name: 'CEO Videos',
+          primary_genre_id: '058b1851-f6b2-42cc-b16d-8edfc479e77e',
+          primary_genre_seq_id: '0',
+          associated_secondary_genre: [],
+        },
+        {
+          primary_genre_name: 'Corporate Videos',
+          primary_genre_id: '03f62792-97a9-4a26-891c-c99ab7025858',
+          primary_genre_seq_id: '0',
+          associated_secondary_genre: [],
+        },
+        {
+          primary_genre_name: 'Learning Videos',
+          primary_genre_id: '0e26f445-bd63-4aba-ac67-04e03d92422f',
+          primary_genre_seq_id: '0',
+          associated_secondary_genre: [
+            {
+              secondary_genre_name: 'ILP Videos',
+              secondary_genre_id: '0eb7a3f3-4556-4556-b1c3-6f921d0acfa3',
+            },
+            {
+              secondary_genre_name: 'CLP Videos',
+              secondary_genre_id: '1029f4c7-fcd6-449b-8084-d474ab8cbfec',
+            },
+            {
+              secondary_genre_name: 'LDP Videos',
+              secondary_genre_id: '175b9b0a-4d06-4671-8880-893ec8fce2d7',
+            },
+          ],
+        },
+      ],
+    });
+  }
 
   render() {
     return (
       <div>
-        {/* <div>
-          <Logo />
-        </div> */}
         <div className='container'>
           <div className='outer'>
             <div className='inner'>
@@ -430,13 +419,17 @@ class VodUpload extends Component {
                     <Form.Control
                       as='select'
                       name='category'
-                      onChange={this.handleChangeValue}
+                      onChange={this.changeCategory}
                       required
                     >
                       <option value=''>Select</option>
-                      <option value='CEO Video'>CEO Video</option>
-                      <option value='Corporate Video'>Corporate Video</option>
-                      <option value='Learning Video'>Learning Video</option>
+                      {this.state.genre_map.map((e, key) => {
+                        return (
+                          <option key={key} value={e.primary_genre_id}>
+                            {e.primary_genre_name}
+                          </option>
+                        );
+                      })}
                     </Form.Control>
                     {this.state.categoryError ? (
                       <span className='form-error'>Please Select Category</span>
@@ -450,20 +443,23 @@ class VodUpload extends Component {
                       as='select'
                       name='subCategory'
                       onChange={this.handleChangeValue}
-                      required
                     >
                       <option value=''>Select</option>
-                      <option value='ILP Video'>ILP Video</option>
-                      <option value='CLP Video'>CLP Video</option>
-                      <option value='LDP Video'>LDP Video</option>
+                      {this.state.states.map((e, key) => {
+                        return (
+                          <option key={key} value={e.secondary_genre_id}>
+                            {e.secondary_genre_name}
+                          </option>
+                        );
+                      })}
                     </Form.Control>
-                    {this.state.subCategoryError ? (
+                    {/* {this.state.subCategoryError ? (
                       <span className='form-error'>
                         Please Select SubCategory
                       </span>
                     ) : (
                       ''
-                    )}
+                    )} */}
                   </Form.Group>
                 </Form.Row>
                 <Form.Row>
@@ -529,11 +525,10 @@ class VodUpload extends Component {
                       required
                     >
                       <option value=''>Select</option>
-                      <option value='show'>TV Shows</option>
-                      <option value='movie'>Movies</option>
-                      <option value='episode'>Episodes</option>
+                      <option value='TVSHOW'>TV Shows</option>
+                      <option value='MOVIE'>Movies</option>
                     </Form.Control>
-                    {this.state.subCategoryError ? (
+                    {this.state.contentTypeValError ? (
                       <span className='form-error'>
                         Please Select Content Type
                       </span>
