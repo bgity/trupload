@@ -66,7 +66,8 @@
   }
 
   .card-gardient {
-    width: 16rem !important;
+    width: 14rem !important;
+    height: 192px !important;
   }
 }
 
@@ -87,19 +88,22 @@
 }
 
 .card-gardient {
-  width: 18rem;
   /* background: linear-gradient(to bottom, #1c7ce0, #150051); */
-  background: linear-gradient(to bottom, #6192c5, #210c5e);
+  /* background: linear-gradient(to bottom, #6192c5, #210c5e); */
+  background-color: #f0f0f0;
   height: 10rem;
   border: 0px;
   margin-bottom: 10px;
   cursor: pointer;
+  border-bottom: 3px solid #188bb9;
+  border-radius: 0px;
 }
 .text-middle {
-  margin-top: 45px;
-  /* font-weight: 300; */
-  /* font-size: 18px; */
-  margin-left: 42px;
+  margin-top: 14px;
+  margin-left: -6px;
+  color: #6c6c6c;
+  font-size: 15px;
+  font-weight: bold;
 }
 
 .form-marigin-left {
@@ -150,4 +154,13 @@ label {
 .form-error {
   color: red;
   font-size: 13px;
+}
+
+/* .tiles-text {
+  color: #6c6c6c !important;
+  font-size: 16px !important;
+} */
+.tiles-img {
+  margin-top: 56px;
+  margin-left: -6px;
 }

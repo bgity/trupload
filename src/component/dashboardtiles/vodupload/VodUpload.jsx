@@ -12,7 +12,7 @@ class VodUpload extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      publishAsset: 'inactive',
+      publishAsset: 'N',
       title: '',
       videoName: '',
       videoFile: '',
@@ -60,7 +60,7 @@ class VodUpload extends Component {
       let publishChecked = event.target.checked;
       if (publishChecked) {
         this.setState({
-          publishAsset: 'active',
+          publishAsset: 'Y',
         });
       }
     }
@@ -246,8 +246,8 @@ class VodUpload extends Component {
         title: title,
         //shortDescription: shortDescription,
         description: longDescription,
-        category: category,
-        subCategory: subCategory,
+        primaryGenre: category,
+        secondaryGenre: subCategory,
         videoName: videoName,
         imageName: imageName,
         updatedVideoName: videoCurrentDateTime,
@@ -468,38 +468,6 @@ class VodUpload extends Component {
                 </Form.Row>
                 <Form.Row>
                   <Form.Group as={Col}>
-                    <Form.Label></Form.Label>
-                    <Form.Check
-                      type='checkbox'
-                      name='publishAsset'
-                      label='Publish Asset'
-                      onChange={this.handleChangeValue}
-                    />
-                  </Form.Group>
-                  <Form.Group as={Col} className='form-marigin-left'>
-                    <Form.Label>Content Type</Form.Label>
-                    <Form.Control
-                      as='select'
-                      name='contentTypeVal'
-                      onChange={this.handleChangeValue}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='show'>TV Shows</option>
-                      <option value='movie'>Movies</option>
-                      <option value='episode'>Episodes</option>
-                    </Form.Control>
-                    {this.state.subCategoryError ? (
-                      <span className='form-error'>
-                        Please Select Content Type
-                      </span>
-                    ) : (
-                      ''
-                    )}
-                  </Form.Group>
-                </Form.Row>
-                <Form.Row>
-                  <Form.Group as={Col}>
                     <Form.Label>Thumbnail Image</Form.Label>
                     <Form.File
                       name='assetImgUpload'
@@ -549,6 +517,38 @@ class VodUpload extends Component {
                     ) : (
                       ''
                     )}
+                  </Form.Group>
+                </Form.Row>
+                <Form.Row>
+                  <Form.Group as={Col}>
+                    <Form.Label>Content Type</Form.Label>
+                    <Form.Control
+                      as='select'
+                      name='contentTypeVal'
+                      onChange={this.handleChangeValue}
+                      required
+                    >
+                      <option value=''>Select</option>
+                      <option value='show'>TV Shows</option>
+                      <option value='movie'>Movies</option>
+                      <option value='episode'>Episodes</option>
+                    </Form.Control>
+                    {this.state.subCategoryError ? (
+                      <span className='form-error'>
+                        Please Select Content Type
+                      </span>
+                    ) : (
+                      ''
+                    )}
+                  </Form.Group>
+                  <Form.Group as={Col} className='form-marigin-left'>
+                    <Form.Label></Form.Label>
+                    <Form.Check
+                      type='checkbox'
+                      name='publishAsset'
+                      label='Publish Asset'
+                      onChange={this.handleChangeValue}
+                    />
                   </Form.Group>
                 </Form.Row>
 
