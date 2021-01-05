@@ -303,7 +303,19 @@ class VodUpload extends Component {
             });
           //document.getElementById('dataForm').reset();
           setTimeout(() => {
-            window.location.reload();
+            //window.location.reload();
+            this.setState({
+              title: '',
+              publishAsset: '',
+              longDescription: '',
+              category: '',
+              subCategory: '',
+              videoName: '',
+              videoFile: '',
+              videoType: '',
+              imageFiles: '',
+              contentTypeVal: '',
+            });
           }, 3000);
         })
         .catch((err) => {
@@ -453,13 +465,6 @@ class VodUpload extends Component {
                         );
                       })}
                     </Form.Control>
-                    {/* {this.state.subCategoryError ? (
-                      <span className='form-error'>
-                        Please Select SubCategory
-                      </span>
-                    ) : (
-                      ''
-                    )} */}
                   </Form.Group>
                 </Form.Row>
                 <Form.Row>
